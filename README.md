@@ -204,10 +204,14 @@ while read -r host; do
 done < cleaned_alive.txt | sort -u >> ips.txt
 ```
 
-### Aquatone crawl
+### Aquatone & GoWitness crawl
 
 ```bash
 cat cleaned_alive.txt | aquatone -ports xlarge -threads 5 -silent
+```
+
+```bash
+gowitness scan file -f cleaned_alive.txt  --chrome-user-agent --save-content --write-db
 ```
 
 ### Masscan and Nmap
