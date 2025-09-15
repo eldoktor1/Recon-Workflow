@@ -167,10 +167,8 @@ echo "[*] interesting:" $(wc -l < interesting.txt)
 head -n 20 interesting.txt
 ```
 
-**###Shodan**
+### SHODAN
 ```bash
-#Shodan
-
 shodan search '\
 (org:"TARGET_NAME" OR hostname:"*.target.com" OR ssl.cert.subject.cn:"*.target.com") AND ( \
 http.title:"admin" OR http.title:"dashboard" OR http.title:"control panel" OR \
@@ -191,7 +189,6 @@ http.title:"admin" OR http.title:"dashboard" OR http.title:"control panel" OR \
 --limit 2000 \
 --fields ip_str,port,org,hostnames,location.country,product,transport \
 > recon_TARGET.json
-
 ```
 
 ### Find allowed HTTP methods
