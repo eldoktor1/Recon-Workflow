@@ -167,6 +167,33 @@ echo "[*] interesting:" $(wc -l < interesting.txt)
 head -n 20 interesting.txt
 ```
 
+**###Shodan**
+```bash
+#Shodan
+
+shodan search '\
+(org:"TARGET_NAME" OR hostname:"*.target.com" OR ssl.cert.subject.cn:"*.target.com") AND ( \
+http.title:"admin" OR http.title:"dashboard" OR http.title:"control panel" OR \
+"http.title:\"index of /\"" OR "directory listing" OR "swagger ui" OR "api documentation" OR \
+"debug" OR "test" OR "staging" OR "dev" OR "qa" OR \
+"elasticsearch" OR "kibana" OR "mongodb" OR "postgresql" OR "mysql" OR "oracle" OR \
+"couchdb" OR "redis" OR "memcached" OR "influxdb" OR "timescaledb" OR \
+"docker" OR "jenkins" OR "gitlab" OR "grafana" OR "sonarqube" OR "splunk" OR \
+"phpmyadmin" OR "rundeck" OR "drupal" OR "wordpress" OR "joomla" OR \
+"weblogic" OR "jboss" OR "tomcat" OR "websphere" OR "glassfish" OR "wildfly" OR \
+"prometheus" OR "consul" OR "zookeeper" OR "etcd" OR "nomad" OR \
+"minio" OR "harbor" OR "nexus repository" OR "artifactory" OR \
+"cisco" OR "juniper" OR "palo alto" OR "checkpoint" OR "f5 big-ip" OR "citrix netscaler" OR "ivanti" OR "pulse secure" OR \
+"nas" OR "synology" OR "qnap" OR \
+"printer" OR "hp jetdirect" OR "ipp" OR \
+"ftp" OR "smb" OR "nfs" OR "telnet" \
+)' \
+--limit 2000 \
+--fields ip_str,port,org,hostnames,location.country,product,transport \
+> recon_TARGET.json
+
+```
+
 ### Find allowed HTTP methods
 
 ```bash
