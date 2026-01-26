@@ -280,7 +280,7 @@ dirsearch -l alive.txt \
 ### WordPress scans
 
 ```bash
-wpscan --url https://target.com --enumerate vp,vt,tt,cb,dbe,u --api-token <WPSCAN_API_TOKEN> --force
+wpscan --url https://target.com --enumerate vp,vt,tt,cb,dbe,u --api-token "$WPSCAN_API_TOKEN" --force
 ```
 
 ### Quick FFUF hits across hosts
