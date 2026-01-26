@@ -15,10 +15,7 @@ nano scope.txt # paste scope here
 ### Assetfinder
 
 ```bash
-while read domain; do
-  echo "[*] Running assetfinder on $domain"
-  assetfinder --subs-only "$domain" >> subdomains_assetfinder.txt
-done < scope.txt
+interlace -tL scope.txt -threads 10 -c "echo '[*] Running assetfinder on _target_'; assetfinder --subs-only _target_ >> subdomains_assetfinder.txt"
 ```
 
 or
@@ -30,7 +27,7 @@ assetfinder --subs-only example.com > subdomains_assetfinder.txt
 ### Subfinder
 
 ```bash
-subfinder -d example.com -all -recursive > subdomains_subfinder.txt
+interlace -tL scope.txt -threads 10 -c "echo '[*] Running subfinder on _target_'; subfinder -d _target_ -silent >> subdomains_subfinder.txt"
 ```
 
 or
@@ -60,10 +57,7 @@ github-subdomains -t <GITHUB_TOKEN> -d example.com | grep -v '@' | sort -u | gre
 or
 
 ```bash
-while read domain; do
-  echo "[*] Running github-subdomains for $domain"
-  github-subdomains -t "$GITHUB_TOKEN" -d "$domain" | grep -v '@' | grep "\.$domain" >> github_subs.txt
-done < scope.txt
+interlace -tL scope.txt -threads 10 -c "echo '[*] Running github-subdomains for _target_'; github-subdomains -t <GITHUB_TOKEN> -d _target_ | grep -v '@' | grep '\._target_' >> github_subs.txt"
 ```
 
 ### Cleanup GitHub subs output
