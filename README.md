@@ -62,7 +62,7 @@ or
 ```bash
 while read domain; do
   echo "[*] Running github-subdomains for $domain"
-  github-subdomains -t <GITHUB_TOKEN> -d "$domain" | grep -v '@' | grep "\.$domain" >> github_subs.txt
+  github-subdomains -t "$GITHUB_TOKEN" -d "$domain" | grep -v '@' | grep "\.$domain" >> github_subs.txt
 done < scope.txt
 ```
 
@@ -101,7 +101,7 @@ grep -Ff scope.txt subdomains_initial.txt > subdomains_filtered.txt
 shuffledns -l subdomains_filtered.txt \
   -r /usr/share/seclists/Miscellaneous/dns-resolvers.txt \
   -o subdomains_shuffledns.txt \
-  -massdns /usr/local/bin/massdns \
+  -massdns /usr/bin/massdns \
   -mode resolve
 ```
 
