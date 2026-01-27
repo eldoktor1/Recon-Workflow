@@ -301,37 +301,119 @@ ffuf -w cleaned_alive.txt:HOST \
 ## Step 5: Parameter Discovery
 
 ```bash
-# GAU with static ext blacklist
-cat alive.txt | gau --blacklist jpg,jpeg,png,gif,css,svg,ico,woff,woff2,ttf,eot,pdf,txt,mp4,mp3,avi,zip,tar,gz,docx,xlsx,pptx,exe,json,svgz \
-| sort -u | uro > gau_urls.txt
+mkdir -p out/{gau,wayback,katana,paramspider}
 
-# Wayback
-cat alive.txt | waybackurls | sort -u | uro > wayback_urls.txt
+# Normalize alive.txt into a clean host list (strip scheme/path if present)
+cat alive.txt \
+  | sed -E 's#^https?://##; s#/.*##' \
+  | sort -u > hosts.txt
+1) GAU with static ext blacklist (interlace)
+interlace -tL hosts.txt -threads 20 -c \
+'echo _target_ \
+ | gau --blacklist jpg,jpeg,png,gif,css,svg,ico,woff,woff2,ttf,eot,pdf,txt,mp4,mp3,avi,zip,tar,gz,docx,xlsx,pptx,exe,json,svgz \
+ | uro \
+ | sort -u > out/gau/_target_.txt' \
+--silent
+2) Waybackurls (interlace)
+interlace -tL hosts.txt -threads 20 -c \
+'echo _target_ \
+ | waybackurls \
+ | uro \
+ | sort -u > out/wayback/_target_.txt' \
+--silent
+3) Katana crawl (interlace)
+interlace -tL hosts.txt -threads 10 -c \
+'katana -u _target_ -f qurl -silent \
+ | uro \
+ | sort -u > out/katana/_target_.txt' \
+--silent
+4) ParamSpider at scale (interlace)
+ParamSpider likes to write to its own output structure, so run per target and redirect into your own folder.
 
-# Katana crawl
-katana -list alive.txt -f qurl -o katana_urls.txt
+interlace -tL hosts.txt -threads 8 -c \
+'paramspider -d _target_ --quiet 2>/dev/null \
+ | uro \
+ | sort -u > out/paramspider/_target_.txt' \
+--silent
+If your ParamSpider build does not print URLs to stdout, use its output flag if available, or fall back to your original results/*.txt approach. This variant keeps it per host:
 
-# ParamSpider at scale
-paramspider -l alive.txt
-cat results/*.txt | sort -u > paramspider_urls.txt
+interlace -tL hosts.txt -threads 8 -c \
+'paramspider -d _target_ -o out/paramspider  --quiet 2>/dev/null; \
+ if [ -f "out/paramspider/_target_.txt" ]; then cat "out/paramspider/_target_.txt"; fi \
+' \
+--silent
+5) Combine, normalize, probe (single merge pass)
+cat out/gau/*.txt out/wayback/*.txt out/katana/*.txt out/paramspider/*.txt \
+  | sort -u | uro > all_urls.txt
 
-# Combine and normalize, probe for 200/301/302
-cat gau_urls.txt wayback_urls.txt katana_urls.txt paramspider_urls.txt \
-| sort -u | uro | httpx -silent -mc 200,301,302 > params.txt
+cat all_urls.txt \
+  | httpx -silent -mc 200,301,302 > params.txt
 
-# For a single target
-echo "target.com" | waybackurls | grep "target.com" > wayback_target.txt
-echo "target.com" | gau --subs | grep "target.com" > gau_target.txt
+grep '\?.*=' params.txt > filterparam.txt
+6) Heuristic param vulns (kxss)
+cat params.txt | kxss > kxss_output.txt
+7) Your single-target workflow (interlace optional)
+For one target, interlace is unnecessary, but if you want the same pattern:
+
+printf "%s\n" "target.com" > one.txt
+
+interlace -tL one.txt -threads 1 -c 'echo _target_ | waybackurls | grep "_target_" > wayback_target.txt' --silent
+interlace -tL one.txt -threads 1 -c 'echo _target_ | gau --subs | grep "_target_" > gau_target.txt' --silent
+
+cat wayback_target.txt
+You said:
+markdown
+ChatGPT said:
+## Recon Pipeline (Interlace-enabled)
+
+### Prep
+```bash
+mkdir -p out/{gau,wayback,katana,paramspider}
+
+# Normalize alive.txt into hosts only
+cat alive.txt \
+  | sed -E 's#^https?://##; s#/.*##' \
+  | sort -u > hosts.txt
+GAU (static ext blacklist) — interlace
+interlace -tL hosts.txt -threads 20 -c \
+'echo _target_ \
+ | gau --blacklist jpg,jpeg,png,gif,css,svg,ico,woff,woff2,ttf,eot,pdf,txt,mp4,mp3,avi,zip,tar,gz,docx,xlsx,pptx,exe,json,svgz \
+ | uro | sort -u > out/gau/_target_.txt' \
+--silent
+Waybackurls — interlace
+interlace -tL hosts.txt -threads 20 -c \
+'echo _target_ | waybackurls | uro | sort -u > out/wayback/_target_.txt' \
+--silent
+Katana crawl — interlace
+interlace -tL hosts.txt -threads 10 -c \
+'katana -u _target_ -f qurl -silent | uro | sort -u > out/katana/_target_.txt' \
+--silent
+ParamSpider at scale — interlace
+interlace -tL hosts.txt -threads 8 -c \
+'paramspider -d _target_ --quiet 2>/dev/null \
+ | uro | sort -u > out/paramspider/_target_.txt' \
+--silent
+Combine, normalize, probe
+cat out/gau/*.txt out/wayback/*.txt out/katana/*.txt out/paramspider/*.txt \
+ | sort -u | uro > all_urls.txt
+
+cat all_urls.txt | httpx -silent -mc 200,301,302 > params.txt
+grep '\?.*=' params.txt > filterparam.txt
+Heuristic param vulns
+cat params.txt | kxss > kxss_output.txt
+Single-target workflow
+printf "%s\n" "target.com" > one.txt
+
+interlace -tL one.txt -threads 1 -c \
+'echo _target_ | waybackurls | grep "_target_" > wayback_target.txt' --silent
+
+interlace -tL one.txt -threads 1 -c \
+'echo _target_ | gau --subs | grep "_target_" > gau_target.txt' --silent
+
 cat wayback_target.txt gau_target.txt | sort -u > all_target_urls.txt
 
-grep "?" all_target_urls.txt | grep "=" > target_param_urls.txt
-cat target_param_urls.txt | sed -E 's/.*\?//' | tr '&' '\n' | cut -d'=' -f1 | sort -u > target_params.txt
-
-# Only URLs with query parameters
-grep '\?.*=' params.txt > filterparam.txt
-
-# Heuristic param vulns
-cat params.txt | kxss > kxss_output.txt
+grep '\?' all_target_urls.txt | grep '=' > target_param_urls.txt
+sed -E 's/.*\?//' target_param_urls.txt | tr '&' '\n' | cut -d= -f1 | sort -u > targ
 ```
 
 ---
