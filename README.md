@@ -51,13 +51,13 @@ amass enum -d example.com -o subdomains_amass.txt
 ### GitHub Subdomains
 
 ```bash
-github-subdomains -t <GITHUB_TOKEN> -d example.com | grep -v '@' | sort -u | grep ".example.com" >> github-subs.txt
+github-subdomains -t "$GITHUB_TOKEN" -d example.com | grep -v '@' | sort -u | grep ".example.com" >> github-subs.txt
 ```
 
 or
 
 ```bash
-interlace -tL scope.txt -threads 10 -c "echo '[*] Running github-subdomains for _target_'; github-subdomains -t <GITHUB_TOKEN> -d _target_ | grep -v '@' | grep '\._target_' >> github_subs.txt"
+interlace -tL scope.txt -threads 10 -c "echo '[*] Running github-subdomains for _target_'; github-subdomains -t "$GITHUB_TOKEN" -d _target_ | grep -v '@' | grep '\._target_' >> github_subs.txt"
 ```
 
 ### Cleanup GitHub subs output
