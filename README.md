@@ -301,7 +301,18 @@ ffuf -w cleaned_alive.txt:HOST \
 ## Step 5: Parameter Discovery
 
 ```bash
-# GAU with static ext blacklist cat alive.txt | gau --blacklist jpg,jpeg,png,gif,css,svg,ico,woff,woff2,ttf,eot,pdf,txt,mp4,mp3,avi,zip,tar,gz,docx,xlsx,pptx,exe,json,svgz \ | sort -u | uro > gau_urls.txt # Wayback cat alive.txt | waybackurls | sort -u | uro > wayback_urls.txt # Katana crawl katana -list alive.txt -f qurl -o katana_urls.txt # ParamSpider at scale paramspider -l alive.txt cat results/*.txt | sort -u > paramspider_urls.txt # Combine and normalize, probe for 200/301/302 cat gau_urls.txt wayback_urls.txt katana_urls.txt paramspider_urls.txt \ | sort -u | uro | httpx -silent -mc 200,301,302 > params.txt # For a single target echo "target.com" | waybackurls | grep "target.com" > wayback_target.txt echo "target.com" | gau --subs | grep "target.com" > gau_target.txt cat wayback_target.txt gau_target.txt | sort -u > all_target_urls.txt grep "?" all_target_urls.txt | grep "=" > target_param_urls.txt cat target_param_urls.txt | sed -E 's/.*\?//' | tr '&' '\n' | cut -d'=' -f1 | sort -u > target_params.txt # Only URLs with query parameters grep '\?.*=' params.txt > filterparam.txt # Heuristic param vulns cat params.txt | kxss > kxss_output.txt
+# GAU with static ext blacklist 
+cat alive.txt | gau --blacklist jpg,jpeg,png,gif,css,svg,ico,woff,woff2,ttf,eot,pdf,txt,mp4,mp3,avi,zip,tar,gz,docx,xlsx,pptx,exe,json,svgz \ | sort -u | uro > gau_urls.txt 
+# Wayback 
+cat alive.txt | waybackurls | sort -u | uro > wayback_urls.txt # Katana crawl katana -list alive.txt -f qurl -o katana_urls.txt 
+# ParamSpider at scale 
+paramspider -l alive.txt cat results/*.txt | sort -u > paramspider_urls.txt 
+# Combine and normalize, probe for 200/301/302 
+cat gau_urls.txt wayback_urls.txt katana_urls.txt paramspider_urls.txt \ | sort -u | uro | httpx -silent -mc 200,301,302 > params.txt 
+# For a single target 
+echo "target.com" | waybackurls | grep "target.com" > wayback_target.txt echo "target.com" | gau --subs | grep "target.com" > gau_target.txt cat wayback_target.txt gau_target.txt | sort -u > all_target_urls.txt grep "?" all_target_urls.txt | grep "=" > target_param_urls.txt cat target_param_urls.txt | sed -E 's/.*\?//' | tr '&' '\n' | cut -d'=' -f1 | sort -u > target_params.txt 
+# Only URLs with query parameters 
+grep '\?.*=' params.txt > filterparam.txt # Heuristic param vulns cat params.txt | kxss > kxss_output.txt
 ---
 
 ## Step 6: JavaScript Files Enumeration
