@@ -304,7 +304,9 @@ ffuf -w cleaned_alive.txt:HOST \
 # GAU with static ext blacklist 
 cat alive.txt | gau --blacklist jpg,jpeg,png,gif,css,svg,ico,woff,woff2,ttf,eot,pdf,txt,mp4,mp3,avi,zip,tar,gz,docx,xlsx,pptx,exe,json,svgz \ | sort -u | uro > gau_urls.txt 
 # Wayback 
-cat alive.txt | waybackurls | sort -u | uro > wayback_urls.txt # Katana crawl katana -list alive.txt -f qurl -o katana_urls.txt 
+cat alive.txt | waybackurls | sort -u | uro > wayback_urls.txt
+# Katana crawl
+katana -list alive.txt -f qurl -o katana_urls.txt 
 # ParamSpider at scale 
 paramspider -l alive.txt cat results/*.txt | sort -u > paramspider_urls.txt 
 # Combine and normalize, probe for 200/301/302 
