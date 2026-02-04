@@ -438,6 +438,12 @@ gf ssrf              params.txt > ssrf.txt
 gf ssti              params.txt > ssti.txt
 gf xss               params.txt > xss.txt
 
+#OR
+
+for p in debug_logic idor img-traversal interestingEXT interestingparams interestingsubs jsvar lfi rce redirect sqli ssrf ssti xss; do
+  gf "$p" params.txt | tee "$p.txt"
+done
+
 # LFI
 cat lfi.txt | nuclei -tags lfi \
   -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15" \
