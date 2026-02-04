@@ -423,14 +423,20 @@ dalfox file alive.txt \
 
 ```bash
 # Pattern extracts
-gf lfi params.txt   > lfi.txt
-gf redirect params.txt > redirect.txt
-gf ssti params.txt  > ssti.txt
-gf ssrf params.txt  > ssrf.txt
-gf rce params.txt   > rce.txt
-gf sqli params.txt  > sqli.txt
-gf xss params.txt   > xss.txt
-gf idor params.txt  > idor.txt
+gf debug_logic       params.txt > debug_logic.txt
+gf idor              params.txt > idor.txt
+gf img-traversal     params.txt > img-traversal.txt
+gf interestingEXT    params.txt > interestingEXT.txt
+gf interestingparams params.txt > interestingparams.txt
+gf interestingsubs   params.txt > interestingsubs.txt
+gf jsvar             params.txt > jsvar.txt
+gf lfi               params.txt > lfi.txt
+gf rce               params.txt > rce.txt
+gf redirect          params.txt > redirect.txt
+gf sqli              params.txt > sqli.txt
+gf ssrf              params.txt > ssrf.txt
+gf ssti              params.txt > ssti.txt
+gf xss               params.txt > xss.txt
 
 # LFI
 cat lfi.txt | nuclei -tags lfi \
