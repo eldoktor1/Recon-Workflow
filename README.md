@@ -332,7 +332,7 @@ cat out_katana/*.txt 2>/dev/null | sort -u > katana_urls.txt
 # NOTE: some ParamSpider builds don't reliably print to stdout; this assumes it does.
 mkdir -p out_paramspider
 interlace -tL alive.txt -threads 8 -c \
-'paramspider -d _target_ --quiet 2>/dev/null \
+'paramspider -d _target_  2>/dev/null \
  | uro | sort -u > out_paramspider/_target_.txt' \
 --silent
 cat out_paramspider/*.txt 2>/dev/null | sort -u > paramspider_urls.txt
